@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["InlineQueryResult",""],["InputMessageContent",""]],"struct":[["InlineQueryResultArticle",""],["InputContactMessageContent",""],["InputLocationMessageContent",""],["InputTextMessageContent",""],["InputVenueMessageContent",""]]});
