@@ -15,6 +15,15 @@ pub(crate) enum ErrorKind {
     InvalidMultipartFilename,
 }
 
+impl Error {
+    pub fn as_telegram_error(&self) -> Option<&telegram_bot_raw::TelegramError> {
+        match self {
+            Error(ErrorKind::Raw(error)) => error.as_telegram_error(),
+            _ => None,
+        }
+    }
+}
+
 impl From<telegram_bot_raw::Error> for ErrorKind {
     fn from(error: telegram_bot_raw::Error) -> Self {
         ErrorKind::Raw(error)

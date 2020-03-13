@@ -141,6 +141,7 @@ impl<C: Connect + std::fmt::Debug + 'static + Clone + Send + Sync> Connector for
             .map_err(ErrorKind::from)?;
 
             let response = client.request(request).await.map_err(ErrorKind::from)?;
+            let status_code = response.status();
             let whole_chunk = to_bytes(response.into_body()).await;
 
             let body = whole_chunk
@@ -150,7 +151,10 @@ impl<C: Connect + std::fmt::Debug + 'static + Clone + Send + Sync> Connector for
                     acc
                 });
 
-            Ok::<HttpResponse, Error>(HttpResponse { body: Some(body) })
+            Ok::<HttpResponse, Error>(HttpResponse {
+                status_code,
+                body: Some(body),
+            })
         };
 
         future.boxed()

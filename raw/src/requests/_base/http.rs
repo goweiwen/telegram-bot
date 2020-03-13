@@ -74,5 +74,6 @@ impl HttpRequest {
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub struct HttpResponse {
+    pub status_code: http::StatusCode,
     pub body: Option<Vec<u8>>,
 }

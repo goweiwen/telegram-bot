@@ -49,10 +49,11 @@ where
                 ResponseWrapper::Error {
                     description,
                     parameters,
-                } => Err(ErrorKind::TelegramError {
+                } => Err(ErrorKind::TelegramError(TelegramError {
+                    status_code: resp.status_code,
                     description,
                     parameters,
-                }
+                })
                 .into()),
             }
         } else {

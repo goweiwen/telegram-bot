@@ -1,6 +1,8 @@
 use std::error;
 use std::fmt;
 
+use http::StatusCode;
+
 use crate::types::*;
 
 #[derive(Debug)]
@@ -9,12 +11,25 @@ pub struct Error(ErrorKind);
 #[derive(Debug)]
 pub(crate) enum ErrorKind {
     EmptyBody,
-    TelegramError {
-        description: String,
-        parameters: Option<ResponseParameters>,
-    },
+    TelegramError(TelegramError),
     DetachedError(String),
     Json(::serde_json::Error),
+}
+
+#[derive(Debug)]
+pub struct TelegramError {
+    pub status_code: StatusCode,
+    pub description: String,
+    pub parameters: Option<ResponseParameters>,
+}
+
+impl Error {
+    pub fn as_telegram_error(&self) -> Option<&TelegramError> {
+        match self {
+            Error(ErrorKind::TelegramError(error)) => Some(error),
+            _ => None,
+        }
+    }
 }
 
 impl From<::serde_json::Error> for ErrorKind {
@@ -33,11 +48,12 @@ impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match &self.0 {
             ErrorKind::EmptyBody => write!(f, "empty body"),
-            ErrorKind::TelegramError {
+            ErrorKind::TelegramError(TelegramError {
+                status_code,
                 description,
                 parameters,
-            } => {
-                f.write_str(&description)?;
+            }) => {
+                write!(f, "{}: {}", status_code, description)?;
                 if let Some(parameters) = parameters {
                     if let Some(chat_id) = parameters.migrate_to_chat_id {
                         write!(f, ", migrate to chat id: {}", chat_id)?;
